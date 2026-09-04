@@ -12,6 +12,6 @@ DESCRIPTION
 variable "location" {
   type        = string
   default     = "westeurope"
-  description = "The Azure region used for the supporting resource group. The action group itself is global."
+  description = "The Azure region used for the supporting resources. The action group itself is global."
   nullable    = false
 }
