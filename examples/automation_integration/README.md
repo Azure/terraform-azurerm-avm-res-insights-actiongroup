@@ -186,7 +186,7 @@ Description: The Azure region used for the supporting resources. The action grou
 
 Type: `string`
 
-Default: `"westeurope"`
+Default: `"swedencentral"`
 
 ## Outputs
 

@@ -80,11 +80,13 @@ resource "azapi_resource" "lock" {
 resource "azapi_resource" "role_assignments" {
   for_each = module.avm_interfaces.role_assignments_azapi
 
-  name                   = each.value.name
-  parent_id              = azapi_resource.this.id
-  type                   = var.resource_types.authorization_role_assignments
-  body                   = each.value.body
-  ignore_body_changes    = length(var.ignore_body_changes.authorization_role_assignments) > 0 ? var.ignore_body_changes.authorization_role_assignments : null
+  name                = each.value.name
+  parent_id           = azapi_resource.this.id
+  type                = var.resource_types.authorization_role_assignments
+  body                = each.value.body
+  ignore_body_changes = length(var.ignore_body_changes.authorization_role_assignments) > 0 ? var.ignore_body_changes.authorization_role_assignments : null
+  # Azure infers principalType server-side, so an unset value would otherwise drift on every plan.
+  ignore_null_property   = true
   response_export_values = []
   retry                  = var.retry != null ? var.retry : local.role_assignment_retry_default
 
