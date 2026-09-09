@@ -42,8 +42,8 @@ run "defaults" {
     error_message = "The module must return the configured action group name."
   }
   assert {
-    condition     = output.parent_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit"
-    error_message = "The module must return the configured parent resource ID."
+    condition     = azapi_resource.this.parent_id == "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit"
+    error_message = "The action group must be created under the configured parent resource ID."
   }
   assert {
     condition     = azapi_resource.this.type == "Microsoft.Insights/actionGroups@2023-01-01"

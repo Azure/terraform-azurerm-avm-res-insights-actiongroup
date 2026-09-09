@@ -3,11 +3,6 @@ output "name" {
   value       = azapi_resource.this.name
 }
 
-output "parent_id" {
-  description = "The resource ID of the resource group that contains the action group."
-  value       = azapi_resource.this.parent_id
-}
-
 output "resource_id" {
   description = "The resource ID of the action group."
   value       = azapi_resource.this.id

@@ -38,7 +38,7 @@ run "create" {
     error_message = "Azure must return the requested action group name."
   }
   assert {
-    condition     = output.parent_id == run.setup.resource_group_id
+    condition     = azapi_resource.this.parent_id == run.setup.resource_group_id
     error_message = "The action group must be created in the requested resource group."
   }
 }

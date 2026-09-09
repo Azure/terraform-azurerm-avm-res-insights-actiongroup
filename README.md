@@ -743,10 +743,6 @@ The following outputs are exported:
 
 Description: The name of the action group.
 
-### <a name="output_parent_id"></a> [parent\_id](#output\_parent\_id)
-
-Description: The resource ID of the resource group that contains the action group.
-
 ### <a name="output_resource_id"></a> [resource\_id](#output\_resource\_id)
 
 Description: The resource ID of the action group.
