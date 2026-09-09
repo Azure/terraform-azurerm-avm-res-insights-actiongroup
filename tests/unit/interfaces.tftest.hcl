@@ -99,6 +99,48 @@ run "role_assignments" {
   }
 }
 
+run "role_assignment_retry_is_merged_not_replaced" {
+  command = apply
+
+  variables {
+    lock = {
+      kind = "CanNotDelete"
+    }
+    retry = {
+      error_message_regex  = ["ResourceGroupNotFound"]
+      interval_seconds     = 10
+      max_interval_seconds = 30
+    }
+    role_assignments = {
+      monitoring_reader = {
+        role_definition_id_or_name = "/providers/Microsoft.Authorization/roleDefinitions/43d0d8ad-25c7-4714-9337-8ba259a9fe05"
+        principal_id               = "55555555-5555-5555-5555-555555555555"
+      }
+    }
+  }
+
+  assert {
+    condition     = contains(azapi_resource.role_assignments["monitoring_reader"].retry.error_message_regex, "ScopeLocked")
+    error_message = "A consumer-supplied `retry` must not drop the `ScopeLocked` pattern, or destroying a locked action group becomes racy."
+  }
+  assert {
+    condition     = contains(azapi_resource.role_assignments["monitoring_reader"].retry.error_message_regex, "ResourceGroupNotFound")
+    error_message = "A consumer-supplied `retry` pattern must be preserved on role assignments."
+  }
+  assert {
+    condition     = azapi_resource.role_assignments["monitoring_reader"].retry.interval_seconds == 10
+    error_message = "A consumer-supplied `retry.interval_seconds` must be honoured on role assignments."
+  }
+  assert {
+    condition     = azapi_resource.role_assignments["monitoring_reader"].retry.max_interval_seconds == 30
+    error_message = "A consumer-supplied `retry.max_interval_seconds` must be honoured on role assignments."
+  }
+  assert {
+    condition     = !contains(azapi_resource.this.retry.error_message_regex, "ScopeLocked")
+    error_message = "The `ScopeLocked` retry must apply only to role assignments, not to the action group itself."
+  }
+}
+
 run "azapi_control_interfaces" {
   command = apply
 

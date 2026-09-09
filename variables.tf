@@ -162,9 +162,9 @@ variable "retry" {
   default     = null
   description = <<DESCRIPTION
 Retry configuration applied to every `azapi` resource managed by the module. Defaults to `null`
-(no custom retry) for the action group and the management lock. Role assignments fall back to a
-module default that retries on `ScopeLocked`, which is raised while a just-removed management
-lock is still being propagated; supplying a value here replaces that default.
+(no custom retry) for the action group and the management lock. Role assignments always retry on
+`ScopeLocked`, which Azure raises while a just-removed management lock is still propagating; any
+patterns supplied here are merged with that one rather than replacing it.
 
 - `error_message_regex`  - (Optional) A list of regex patterns matching error messages that trigger a retry.
 - `interval_seconds`     - (Optional) Initial interval between retries in seconds.

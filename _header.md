@@ -142,9 +142,11 @@ deliberately left at 1.9 so that consumers who do not use the feature are not fo
 The module adds no unconditional retries to the action group itself; `retry` defaults to null and
 is passed straight through from the consumer.
 
-Role assignments do carry a default retry on the transient `ScopeLocked` error, which Azure raises
-while a management lock on the same scope is still being removed. A consumer-supplied `retry`
-value replaces that default.
+Role assignments always retry on the transient `ScopeLocked` error, which Azure raises while a
+management lock on the same scope is still being removed. A lock and the role assignments on the
+same action group are independent resources with no ordering between them, so without this retry a
+`terraform destroy` of a locked action group fails intermittently. Patterns supplied through
+`retry` are merged with `ScopeLocked` rather than replacing it.
 
 ## Importing an existing action group
 

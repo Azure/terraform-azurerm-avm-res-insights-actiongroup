@@ -88,7 +88,7 @@ resource "azapi_resource" "role_assignments" {
   # Azure infers principalType server-side, so an unset value would otherwise drift on every plan.
   ignore_null_property   = true
   response_export_values = []
-  retry                  = var.retry != null ? var.retry : local.role_assignment_retry_default
+  retry                  = local.role_assignment_retry
 
   dynamic "timeouts" {
     for_each = [var.timeouts != null ? var.timeouts : local.role_assignment_timeouts_default]

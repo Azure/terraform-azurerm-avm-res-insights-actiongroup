@@ -144,9 +144,11 @@ deliberately left at 1.9 so that consumers who do not use the feature are not fo
 The module adds no unconditional retries to the action group itself; `retry` defaults to null and
 is passed straight through from the consumer.
 
-Role assignments do carry a default retry on the transient `ScopeLocked` error, which Azure raises
-while a management lock on the same scope is still being removed. A consumer-supplied `retry`
-value replaces that default.
+Role assignments always retry on the transient `ScopeLocked` error, which Azure raises while a
+management lock on the same scope is still being removed. A lock and the role assignments on the
+same action group are independent resources with no ordering between them, so without this retry a
+`terraform destroy` of a locked action group fails intermittently. Patterns supplied through
+`retry` are merged with `ScopeLocked` rather than replacing it.
 
 ## Importing an existing action group
 
@@ -559,9 +561,9 @@ Default: `{}`
 ### <a name="input_retry"></a> [retry](#input\_retry)
 
 Description: Retry configuration applied to every `azapi` resource managed by the module. Defaults to `null`
-(no custom retry) for the action group and the management lock. Role assignments fall back to a  
-module default that retries on `ScopeLocked`, which is raised while a just-removed management  
-lock is still being propagated; supplying a value here replaces that default.
+(no custom retry) for the action group and the management lock. Role assignments always retry on
+`ScopeLocked`, which Azure raises while a just-removed management lock is still propagating; any  
+patterns supplied here are merged with that one rather than replacing it.
 
 - `error_message_regex`  - (Optional) A list of regex patterns matching error messages that trigger a retry.
 - `interval_seconds`     - (Optional) Initial interval between retries in seconds.
