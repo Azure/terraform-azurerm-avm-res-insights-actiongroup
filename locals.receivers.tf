@@ -12,7 +12,6 @@ locals {
       isGlobalRunbook      = v.is_global_runbook
       name                 = v.name
       runbookName          = v.runbook_name
-      serviceUri           = v.service_uri == null ? null : sensitive(v.service_uri)
       useCommonAlertSchema = v.use_common_alert_schema
       webhookResourceId    = v.webhook_resource_id
     }
@@ -27,7 +26,6 @@ locals {
     for k, v in var.azure_function_receivers : {
       functionAppResourceId = v.function_app_resource_id
       functionName          = v.function_name
-      httpTriggerUrl        = sensitive(v.http_trigger_url)
       name                  = v.name
       useCommonAlertSchema  = v.use_common_alert_schema
     }
@@ -60,7 +58,6 @@ locals {
   ]
   logic_app_receivers = [
     for k, v in var.logic_app_receivers : {
-      callbackUrl          = sensitive(v.callback_url)
       name                 = v.name
       resourceId           = v.resource_id
       useCommonAlertSchema = v.use_common_alert_schema
@@ -100,10 +97,58 @@ locals {
       identifierUri        = v.identifier_uri
       name                 = v.name
       objectId             = v.object_id
-      serviceUri           = sensitive(v.service_uri)
       tenantId             = v.tenant_id
       useAadAuth           = v.use_aad_auth
       useCommonAlertSchema = v.use_common_alert_schema
     }
   ]
+}
+
+locals {
+  # Credential-bearing endpoints travel in `sensitive_body`, which is write-only, so they never
+  # reach Terraform state. Each list position matches the same receiver in `body` because both
+  # iterate the same map, and Terraform iterates a map in sorted key order.
+  automation_runbook_receivers_sensitive = [
+    for k, v in var.automation_runbook_receivers : {
+      name       = v.name
+      serviceUri = v.service_uri
+    }
+  ]
+  azure_function_receivers_sensitive = [
+    for k, v in var.azure_function_receivers : {
+      httpTriggerUrl = v.http_trigger_url
+      name           = v.name
+    }
+  ]
+  logic_app_receivers_sensitive = [
+    for k, v in var.logic_app_receivers : {
+      callbackUrl = v.callback_url
+      name        = v.name
+    }
+  ]
+  webhook_receivers_sensitive = [
+    for k, v in var.webhook_receivers : {
+      name       = v.name
+      serviceUri = v.service_uri
+    }
+  ]
+  sensitive_receiver_body = {
+    properties = {
+      automationRunbookReceivers = local.automation_runbook_receivers_sensitive
+      azureFunctionReceivers     = local.azure_function_receivers_sensitive
+      logicAppReceivers          = local.logic_app_receivers_sensitive
+      webhookReceivers           = local.webhook_receivers_sensitive
+    }
+  }
+  # Hashing the endpoint, rather than versioning it by hand, makes a changed secret detectable
+  # without the secret itself being written to state.
+  sensitive_receiver_versions = merge(
+    { for i, v in local.automation_runbook_receivers_sensitive : "properties.automationRunbookReceivers[${i}].serviceUri" => sha256(v.serviceUri == null ? "" : v.serviceUri) },
+    { for i, v in local.azure_function_receivers_sensitive : "properties.azureFunctionReceivers[${i}].httpTriggerUrl" => sha256(v.httpTriggerUrl) },
+    { for i, v in local.logic_app_receivers_sensitive : "properties.logicAppReceivers[${i}].callbackUrl" => sha256(v.callbackUrl) },
+    { for i, v in local.webhook_receivers_sensitive : "properties.webhookReceivers[${i}].serviceUri" => sha256(v.serviceUri) },
+  )
+  # Collapsing to null when no credential-bearing receiver is configured keeps the module usable
+  # on Terraform versions earlier than 1.11, which cannot accept a write-only argument.
+  has_sensitive_receivers = length(local.sensitive_receiver_versions) > 0
 }

@@ -237,7 +237,7 @@ run "secure_webhook" {
   }
 }
 
-run "credential_bearing_endpoints_are_sensitive" {
+run "credential_bearing_endpoints_are_write_only" {
   command = apply
 
   variables {
@@ -265,16 +265,20 @@ run "credential_bearing_endpoints_are_sensitive" {
   }
 
   assert {
-    condition     = issensitive(azapi_resource.this.body.properties.azureFunctionReceivers[0].httpTriggerUrl)
-    error_message = "The Azure Function HTTP trigger URL must be marked sensitive."
+    condition     = !can(azapi_resource.this.body.properties.azureFunctionReceivers[0].httpTriggerUrl)
+    error_message = "The Azure Function HTTP trigger URL must be absent from the state-persisted body."
   }
   assert {
-    condition     = issensitive(azapi_resource.this.body.properties.logicAppReceivers[0].callbackUrl)
-    error_message = "The Logic App callback URL must be marked sensitive."
+    condition     = !can(azapi_resource.this.body.properties.logicAppReceivers[0].callbackUrl)
+    error_message = "The Logic App callback URL must be absent from the state-persisted body."
   }
   assert {
-    condition     = issensitive(azapi_resource.this.body.properties.webhookReceivers[0].serviceUri)
-    error_message = "The webhook service URI must be marked sensitive."
+    condition     = !can(azapi_resource.this.body.properties.webhookReceivers[0].serviceUri)
+    error_message = "The webhook service URI must be absent from the state-persisted body."
+  }
+  assert {
+    condition     = azapi_resource.this.sensitive_body_version["properties.webhookReceivers[0].serviceUri"] == sha256("https://example.com/ops")
+    error_message = "The webhook service URI must be tracked in `sensitive_body_version` by content hash."
   }
   assert {
     condition     = !issensitive(output.resource_id)

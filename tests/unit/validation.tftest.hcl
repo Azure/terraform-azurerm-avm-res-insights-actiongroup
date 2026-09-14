@@ -209,6 +209,24 @@ run "secure_webhook_receiver_is_incomplete" {
   expect_failures = [var.webhook_receivers]
 }
 
+run "secure_webhook_receiver_identifier_uri_is_blank" {
+  command = plan
+
+  variables {
+    webhook_receivers = {
+      secure = {
+        name           = "secure"
+        service_uri    = "https://example.com/secure"
+        use_aad_auth   = true
+        object_id      = "11111111-1111-1111-1111-111111111111"
+        identifier_uri = "   "
+      }
+    }
+  }
+
+  expect_failures = [var.webhook_receivers]
+}
+
 run "azure_function_receiver_is_incomplete" {
   command = plan
 

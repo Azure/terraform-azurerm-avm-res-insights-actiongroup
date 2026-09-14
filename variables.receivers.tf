@@ -52,7 +52,7 @@ deliberately arbitrary: it controls Terraform identity only and is never sent to
 - `webhook_resource_id`     - (Required) The resource ID of the Automation webhook linked to the runbook.
 - `is_global_runbook`       - (Optional) Whether this instance is a global runbook. Defaults to `false`.
 - `name`                    - (Optional) The Azure-visible name of the webhook receiver. When set it must be unique across **all** receivers within the action group.
-- `service_uri`             - (Optional) The URI the webhook request is sent to. **Credential bearing**: Automation webhook URIs embed a single-use token and are persisted in Terraform state.
+- `service_uri`             - (Optional) The URI the webhook request is sent to. **Credential bearing**: Automation webhook URIs embed a single-use token. Sent through AzAPI `sensitive_body`, so it is not persisted in Terraform state.
 - `use_common_alert_schema` - (Optional) Whether to use the common alert schema. Defaults to `false`.
 DESCRIPTION
   nullable    = false
@@ -135,7 +135,7 @@ deliberately arbitrary: it controls Terraform identity only and is never sent to
 - `name`                     - (Required) The Azure-visible name of the receiver. Names must be unique across **all** receivers within the action group.
 - `function_app_resource_id` - (Required) The resource ID of the function app.
 - `function_name`            - (Required) The name of the function within the function app.
-- `http_trigger_url`         - (Required) The HTTP trigger URL the request is sent to. **Credential bearing**: function trigger URLs usually embed a function key and are persisted in Terraform state.
+- `http_trigger_url`         - (Required) The HTTP trigger URL the request is sent to. **Credential bearing**: function trigger URLs usually embed a function key. Sent through AzAPI `sensitive_body`, so it is not persisted in Terraform state.
 - `use_common_alert_schema`  - (Optional) Whether to use the common alert schema. Defaults to `false`.
 DESCRIPTION
   nullable    = false
@@ -307,7 +307,7 @@ arbitrary: it controls Terraform identity only and is never sent to Azure.
 
 - `name`                    - (Required) The Azure-visible name of the receiver. Names must be unique across **all** receivers within the action group.
 - `resource_id`             - (Required) The resource ID of the Logic App workflow.
-- `callback_url`            - (Required) The callback URL the HTTP request is sent to. **Credential bearing**: Logic App callback URLs embed a shared access signature and are persisted in Terraform state.
+- `callback_url`            - (Required) The callback URL the HTTP request is sent to. **Credential bearing**: Logic App callback URLs embed a shared access signature. Sent through AzAPI `sensitive_body`, so it is not persisted in Terraform state.
 - `use_common_alert_schema` - (Optional) Whether to use the common alert schema. Defaults to `false`.
 DESCRIPTION
   nullable    = false
@@ -433,7 +433,7 @@ Microsoft Entra ID token for the target application instead of calling an unauth
 endpoint. Secure webhooks are the recommended configuration.
 
 - `name`                    - (Required) The Azure-visible name of the receiver. Names must be unique across **all** receivers within the action group.
-- `service_uri`             - (Required) The URI webhooks are sent to. **Credential bearing** when the endpoint authenticates with a URL-embedded token; the value is persisted in Terraform state.
+- `service_uri`             - (Required) The URI webhooks are sent to. **Credential bearing** when the endpoint authenticates with a URL-embedded token. Sent through AzAPI `sensitive_body`, so it is not persisted in Terraform state.
 - `use_common_alert_schema` - (Optional) Whether to use the common alert schema. Defaults to `false`.
 - `use_aad_auth`            - (Optional) Whether to use Microsoft Entra ID authentication (secure webhook). Defaults to `false`.
 - `object_id`               - (Required when `use_aad_auth` is `true`) The object ID of the Entra ID application that receives the webhook.
@@ -451,8 +451,8 @@ DESCRIPTION
     error_message = "Each `webhook_receivers[*].service_uri` must be an absolute HTTP or HTTPS URI. HTTPS is strongly recommended."
   }
   validation {
-    condition     = alltrue([for v in values(var.webhook_receivers) : !v.use_aad_auth || (v.object_id != null && v.identifier_uri != null)])
-    error_message = "Each `webhook_receivers[*]` with `use_aad_auth = true` must also supply `object_id` and `identifier_uri`."
+    condition     = alltrue([for v in values(var.webhook_receivers) : !v.use_aad_auth || (v.object_id != null && try(trimspace(v.identifier_uri), "") != "")])
+    error_message = "Each `webhook_receivers[*]` with `use_aad_auth = true` must also supply `object_id` and a non-blank `identifier_uri`."
   }
   validation {
     condition     = alltrue([for v in values(var.webhook_receivers) : v.object_id == null || can(regex("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$", coalesce(v.object_id, "-")))])

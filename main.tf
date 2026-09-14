@@ -23,6 +23,8 @@ resource "azapi_resource" "this" {
   ignore_body_changes    = length(var.ignore_body_changes.insights_action_groups) > 0 ? var.ignore_body_changes.insights_action_groups : null
   response_export_values = []
   retry                  = var.retry
+  sensitive_body         = local.has_sensitive_receivers ? local.sensitive_receiver_body : null
+  sensitive_body_version = local.has_sensitive_receivers ? local.sensitive_receiver_versions : null
   tags                   = var.tags
 
   dynamic "timeouts" {

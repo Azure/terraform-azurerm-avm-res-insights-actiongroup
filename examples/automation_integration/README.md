@@ -108,9 +108,10 @@ module "action_group" {
   name       = "ag-avm-automation-${random_string.suffix.result}"
   parent_id  = azapi_resource.resource_group.id
   short_name = "avmauto"
-  # The runbook and its webhook are referenced by resource ID. The webhook `service_uri` is a
-  # synthetic placeholder: real Automation webhook URIs embed a bearer token and are only ever
-  # returned once, at creation time.
+  # This receiver is structurally illustrative and is not wired to a working runbook. Azure does
+  # not check that `runbook_name`, `webhook_resource_id` or `service_uri` resolve when the action
+  # group is created, so the example deploys cleanly, but the receiver would not fire. A real
+  # Automation webhook URI embeds a bearer token and is returned only once, at creation time.
   automation_runbook_receivers = {
     remediation = {
       automation_account_id   = azapi_resource.automation_account.id

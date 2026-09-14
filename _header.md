@@ -78,23 +78,31 @@ Some receiver types are not active the moment Terraform reports success:
 
 ## Sensitive values and Terraform state
 
-Some receiver endpoints are credential-bearing URLs. The module marks the following values as
-sensitive so that they are redacted from plan output and from any module output:
+Some receiver endpoints are credential-bearing URLs. The module sends the following values through
+the AzAPI provider's write-only `sensitive_body` argument rather than through `body`:
 
 - `webhook_receivers[*].service_uri`
 - `azure_function_receivers[*].http_trigger_url`
 - `logic_app_receivers[*].callback_url`
 - `automation_runbook_receivers[*].service_uri`
 
-Marking a value sensitive changes how Terraform *displays* it. It does **not** encrypt it.
-**All four values are stored in plaintext in Terraform state**, as is every other input you
-supply, including phone numbers and email addresses. Protect state accordingly: use a remote
-backend with encryption at rest, restrict read access to it, and prefer receiver types that carry
-no secret.
+A write-only argument is transmitted to Azure but never written to Terraform state. In place of the
+endpoint, the module stores a SHA-256 hash of it in `sensitive_body_version`, which is what lets
+Terraform detect that an endpoint changed without persisting the endpoint itself.
+
+Two consequences follow. First, supplying any of these four inputs requires **Terraform 1.11 or
+later**, because earlier versions cannot accept a write-only argument; the module collapses
+`sensitive_body` to `null` when none of them is configured, so every other receiver type still works
+on Terraform 1.9 and 1.10. Second, because the values are absent from state, Terraform cannot detect
+a change made to them outside Terraform.
+
+Every *other* input you supply is still stored in plaintext in state, including phone numbers and
+email addresses. Protect state accordingly: use a remote backend with encryption at rest and
+restrict read access to it.
 
 The module deliberately exposes **no output** containing receiver bodies, webhook addresses,
 callback URLs, HTTP trigger URLs, tokens or credentials. Only the action group's resource ID,
-name, parent resource ID and the resource IDs of any role assignments are returned.
+name and the resource IDs of any role assignments are returned.
 
 Where you have a choice, prefer identity-based integration: a **secure webhook**
 (`use_aad_auth = true`) authenticates with a Microsoft Entra token issued at delivery time and
