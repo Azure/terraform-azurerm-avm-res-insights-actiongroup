@@ -1,34 +1,16 @@
-# TODO: insert locals here.
 locals {
-  managed_identities = {
-    system_assigned_user_assigned = (var.managed_identities.system_assigned || length(var.managed_identities.user_assigned_resource_ids) > 0) ? {
-      this = {
-        type                       = var.managed_identities.system_assigned && length(var.managed_identities.user_assigned_resource_ids) > 0 ? "SystemAssigned, UserAssigned" : length(var.managed_identities.user_assigned_resource_ids) > 0 ? "UserAssigned" : "SystemAssigned"
-        user_assigned_resource_ids = var.managed_identities.user_assigned_resource_ids
-      }
-    } : {}
-    system_assigned = var.managed_identities.system_assigned ? {
-      this = {
-        type = "SystemAssigned"
-      }
-    } : {}
-    user_assigned = length(var.managed_identities.user_assigned_resource_ids) > 0 ? {
-      this = {
-        type                       = "UserAssigned"
-        user_assigned_resource_ids = var.managed_identities.user_assigned_resource_ids
-      }
-    } : {}
+  # Deleting a `Microsoft.Authorization/roleAssignments` races with the removal of a management
+  # lock on the same scope, which Azure reports as `ScopeLocked`. The pattern is merged into any
+  # consumer-supplied retry rather than replacing it, because losing it makes destroy racy.
+  role_assignment_retry = {
+    error_message_regex  = distinct(concat(var.retry == null ? [] : coalesce(var.retry.error_message_regex, []), ["ScopeLocked"]))
+    interval_seconds     = var.retry == null ? 15 : coalesce(var.retry.interval_seconds, 15)
+    max_interval_seconds = var.retry == null ? 60 : coalesce(var.retry.max_interval_seconds, 60)
   }
-  # Private endpoint application security group associations.
-  # We merge the nested maps from private endpoints and application security group associations into a single map.
-  private_endpoint_application_security_group_associations = { for assoc in flatten([
-    for pe_k, pe_v in var.private_endpoints : [
-      for asg_k, asg_v in pe_v.application_security_group_associations : {
-        asg_key         = asg_k
-        pe_key          = pe_k
-        asg_resource_id = asg_v
-      }
-    ]
-  ]) : "${assoc.pe_key}-${assoc.asg_key}" => assoc }
-  role_definition_resource_substring = "/providers/Microsoft.Authorization/roleDefinitions"
+  role_assignment_timeouts_default = {
+    create = null
+    read   = null
+    update = null
+    delete = "5m"
+  }
 }
