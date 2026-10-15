@@ -13,6 +13,11 @@ mock_provider "azapi" {
       }
     }
   }
+  mock_data "azapi_client_config" {
+    defaults = {
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
+    }
+  }
 }
 
 mock_provider "modtm" {}
@@ -62,6 +67,11 @@ run "lock" {
     condition     = azapi_resource.lock[0].body.properties.notes == "Protected."
     error_message = "The lock notes must come from `lock.notes`."
   }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "role_assignments" {
@@ -96,6 +106,11 @@ run "role_assignments" {
   assert {
     condition     = contains(azapi_resource.role_assignments["monitoring_reader"].retry.error_message_regex, "ScopeLocked")
     error_message = "Role assignments must retry the transient `ScopeLocked` error raised while a lock is being removed."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }
 
@@ -138,6 +153,11 @@ run "role_assignment_retry_is_merged_not_replaced" {
   assert {
     condition     = !contains(azapi_resource.this.retry.error_message_regex, "ScopeLocked")
     error_message = "The `ScopeLocked` retry must apply only to role assignments, not to the action group itself."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }
 
@@ -190,5 +210,10 @@ run "azapi_control_interfaces" {
   assert {
     condition     = azapi_resource.this.timeouts.update == "13m"
     error_message = "`timeouts` must be forwarded to the action group resource."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }

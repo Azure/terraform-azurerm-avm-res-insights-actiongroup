@@ -6,6 +6,11 @@ mock_provider "azapi" {
       }
     }
   }
+  mock_data "azapi_client_config" {
+    defaults = {
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
+    }
+  }
 }
 
 mock_provider "azapi" {
@@ -16,6 +21,11 @@ mock_provider "azapi" {
       output = {
         results = []
       }
+    }
+  }
+  mock_data "azapi_client_config" {
+    defaults = {
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
     }
   }
 }
@@ -176,6 +186,11 @@ run "all_receiver_types" {
     condition     = length(azapi_resource.this.body.properties.webhookReceivers) == 1
     error_message = "The webhook receiver must be sent to Azure."
   }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "common_alert_schema_is_per_receiver" {
@@ -203,6 +218,11 @@ run "common_alert_schema_is_per_receiver" {
   assert {
     condition     = length([for r in azapi_resource.this.body.properties.emailReceivers : r if !r.useCommonAlertSchema]) == 1
     error_message = "Exactly one email receiver must have the common alert schema disabled."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }
 
@@ -234,6 +254,11 @@ run "secure_webhook" {
   assert {
     condition     = azapi_resource.this.body.properties.webhookReceivers[0].identifierUri == "api://avm-example"
     error_message = "The secure webhook receiver must carry the Entra application identifier URI."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }
 
@@ -284,6 +309,11 @@ run "credential_bearing_endpoints_are_write_only" {
     condition     = !issensitive(output.resource_id)
     error_message = "The resource ID output must not carry sensitive receiver data."
   }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "receivers_can_be_added" {
@@ -317,6 +347,11 @@ run "receivers_can_be_added" {
     condition     = length(azapi_resource.this.body.properties.smsReceivers) == 1
     error_message = "Adding a receiver of a new type must update the action group in place."
   }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "receivers_can_be_removed" {
@@ -338,6 +373,11 @@ run "receivers_can_be_removed" {
   assert {
     condition     = length(azapi_resource.this.body.properties.smsReceivers) == 0
     error_message = "Removing every receiver of a type must send an empty array."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }
 
