@@ -6,6 +6,7 @@ terraform {
       source  = "Azure/azapi"
       version = "~> 2.12"
     }
+    modtm = { "source" : "registry.terraform.io/azure/modtm", "version" : "~\u003e 0.3" }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
@@ -43,6 +44,7 @@ module "action_group" {
   source = "../../"
   providers = {
     azapi = azapi.alternate
+    modtm = modtm
   }
 
   location   = "Global"

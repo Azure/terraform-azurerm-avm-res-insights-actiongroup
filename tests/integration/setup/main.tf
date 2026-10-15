@@ -13,13 +13,6 @@ terraform {
   }
 }
 
-variable "location" {
-  type        = string
-  default     = "westeurope"
-  description = "The Azure region used for the supporting resource group."
-  nullable    = false
-}
-
 data "azapi_client_config" "current" {}
 
 resource "random_string" "suffix" {

@@ -8,6 +8,11 @@ mock_provider "azapi" {
       }
     }
   }
+  mock_data "azapi_client_config" {
+    defaults = {
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
+    }
+  }
 }
 
 mock_provider "modtm" {}
@@ -93,6 +98,11 @@ run "defaults" {
     condition     = length(azapi_resource.role_assignments) == 0
     error_message = "No role assignments must be created when `role_assignments` is empty."
   }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "disabled_action_group_with_tags" {
@@ -119,6 +129,11 @@ run "disabled_action_group_with_tags" {
     condition     = azapi_resource.this.tags["environment"] == "test"
     error_message = "Tags must be propagated to the action group."
   }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "telemetry_enabled" {
@@ -135,8 +150,13 @@ run "telemetry_enabled" {
   }
 
   assert {
-    condition     = length(modtm_telemetry.telemetry) == 1
+    condition     = length(azapi_resource.telemetry) == 1
     error_message = "Telemetry must be emitted when `enable_telemetry` is true."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }
 
@@ -154,11 +174,16 @@ run "telemetry_disabled" {
   }
 
   assert {
-    condition     = length(modtm_telemetry.telemetry) == 0
+    condition     = length(azapi_resource.telemetry) == 0
     error_message = "No telemetry must be emitted when `enable_telemetry` is false."
   }
   assert {
-    condition     = length(random_uuid.telemetry) == 0
+    condition     = length(terraform_data.telemetry) == 0
     error_message = "No telemetry identifier must be generated when `enable_telemetry` is false."
+  }
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
   }
 }

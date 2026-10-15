@@ -6,6 +6,11 @@ mock_provider "azapi" {
       }
     }
   }
+  mock_data "azapi_client_config" {
+    defaults = {
+      subscription_resource_id = "/subscriptions/00000000-0000-0000-0000-000000000000"
+    }
+  }
 }
 
 mock_provider "modtm" {}
@@ -27,6 +32,11 @@ run "short_name_too_long" {
   }
 
   expect_failures = [var.short_name]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "short_name_blank" {
@@ -37,6 +47,11 @@ run "short_name_blank" {
   }
 
   expect_failures = [var.short_name]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "name_contains_forbidden_characters" {
@@ -47,6 +62,11 @@ run "name_contains_forbidden_characters" {
   }
 
   expect_failures = [var.name]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "parent_id_is_not_a_resource_group" {
@@ -57,6 +77,11 @@ run "parent_id_is_not_a_resource_group" {
   }
 
   expect_failures = [var.parent_id]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "email_receiver_name_is_blank" {
@@ -72,6 +97,11 @@ run "email_receiver_name_is_blank" {
   }
 
   expect_failures = [var.email_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "email_receiver_address_is_invalid" {
@@ -87,6 +117,11 @@ run "email_receiver_address_is_invalid" {
   }
 
   expect_failures = [var.email_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "email_receiver_names_are_duplicated" {
@@ -106,6 +141,11 @@ run "email_receiver_names_are_duplicated" {
   }
 
   expect_failures = [var.email_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "receiver_names_are_duplicated_across_collections" {
@@ -128,6 +168,11 @@ run "receiver_names_are_duplicated_across_collections" {
   }
 
   expect_failures = [azapi_resource.this]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "sms_receiver_country_code_is_invalid" {
@@ -144,6 +189,11 @@ run "sms_receiver_country_code_is_invalid" {
   }
 
   expect_failures = [var.sms_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "sms_receiver_phone_number_is_missing" {
@@ -160,6 +210,11 @@ run "sms_receiver_phone_number_is_missing" {
   }
 
   expect_failures = [var.sms_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "voice_receiver_phone_number_is_invalid" {
@@ -176,6 +231,11 @@ run "voice_receiver_phone_number_is_invalid" {
   }
 
   expect_failures = [var.voice_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "webhook_receiver_service_uri_is_missing" {
@@ -191,6 +251,11 @@ run "webhook_receiver_service_uri_is_missing" {
   }
 
   expect_failures = [var.webhook_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "secure_webhook_receiver_is_incomplete" {
@@ -207,6 +272,11 @@ run "secure_webhook_receiver_is_incomplete" {
   }
 
   expect_failures = [var.webhook_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "secure_webhook_receiver_identifier_uri_is_blank" {
@@ -225,6 +295,11 @@ run "secure_webhook_receiver_identifier_uri_is_blank" {
   }
 
   expect_failures = [var.webhook_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "azure_function_receiver_is_incomplete" {
@@ -242,6 +317,11 @@ run "azure_function_receiver_is_incomplete" {
   }
 
   expect_failures = [var.azure_function_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "azure_function_receiver_resource_id_is_invalid" {
@@ -259,6 +339,11 @@ run "azure_function_receiver_resource_id_is_invalid" {
   }
 
   expect_failures = [var.azure_function_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "logic_app_receiver_is_incomplete" {
@@ -275,6 +360,11 @@ run "logic_app_receiver_is_incomplete" {
   }
 
   expect_failures = [var.logic_app_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "event_hub_receiver_is_incomplete" {
@@ -292,6 +382,11 @@ run "event_hub_receiver_is_incomplete" {
   }
 
   expect_failures = [var.event_hub_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "event_hub_receiver_subscription_id_is_invalid" {
@@ -309,6 +404,11 @@ run "event_hub_receiver_subscription_id_is_invalid" {
   }
 
   expect_failures = [var.event_hub_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "arm_role_receiver_role_id_is_missing" {
@@ -324,6 +424,11 @@ run "arm_role_receiver_role_id_is_missing" {
   }
 
   expect_failures = [var.arm_role_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "arm_role_receiver_role_id_is_not_a_guid" {
@@ -339,6 +444,11 @@ run "arm_role_receiver_role_id_is_not_a_guid" {
   }
 
   expect_failures = [var.arm_role_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "automation_runbook_receiver_is_incomplete" {
@@ -355,6 +465,11 @@ run "automation_runbook_receiver_is_incomplete" {
   }
 
   expect_failures = [var.automation_runbook_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "automation_runbook_receiver_webhook_id_is_invalid" {
@@ -371,6 +486,11 @@ run "automation_runbook_receiver_webhook_id_is_invalid" {
   }
 
   expect_failures = [var.automation_runbook_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "itsm_receiver_ticket_configuration_is_not_json" {
@@ -389,6 +509,11 @@ run "itsm_receiver_ticket_configuration_is_not_json" {
   }
 
   expect_failures = [var.itsm_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
 
 run "azure_app_push_receiver_address_is_invalid" {
@@ -404,4 +529,9 @@ run "azure_app_push_receiver_address_is_invalid" {
   }
 
   expect_failures = [var.azure_app_push_receivers]
+  providers = {
+    azapi  = azapi
+    modtm  = modtm
+    random = random
+  }
 }
