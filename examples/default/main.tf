@@ -6,7 +6,6 @@ terraform {
       source  = "Azure/azapi"
       version = "~> 2.12"
     }
-    modtm = { "source" : "registry.terraform.io/azure/modtm", "version" : "~\u003e 0.3" }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
@@ -37,8 +36,10 @@ resource "azapi_resource" "resource_group" {
 # This is the module call.
 # Azure Monitor action groups are global resources, so `location` is `Global`.
 module "action_group" {
-  source    = "../../"
-  providers = { modtm = modtm }
+  source = "../../"
+  providers = {
+    azapi = azapi
+  }
 
   location   = "Global"
   name       = "ag-avm-default-${random_string.suffix.result}"

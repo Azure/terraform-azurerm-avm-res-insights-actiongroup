@@ -30,8 +30,6 @@ mock_provider "azapi" {
   }
 }
 
-mock_provider "modtm" {}
-
 mock_provider "random" {}
 
 variables {
@@ -187,8 +185,8 @@ run "all_receiver_types" {
     error_message = "The webhook receiver must be sent to Azure."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -220,8 +218,8 @@ run "common_alert_schema_is_per_receiver" {
     error_message = "Exactly one email receiver must have the common alert schema disabled."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -256,8 +254,8 @@ run "secure_webhook" {
     error_message = "The secure webhook receiver must carry the Entra application identifier URI."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -310,8 +308,8 @@ run "credential_bearing_endpoints_are_write_only" {
     error_message = "The resource ID output must not carry sensitive receiver data."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -348,8 +346,8 @@ run "receivers_can_be_added" {
     error_message = "Adding a receiver of a new type must update the action group in place."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -375,8 +373,8 @@ run "receivers_can_be_removed" {
     error_message = "Removing every receiver of a type must send an empty array."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -385,8 +383,8 @@ run "aliased_azapi_provider" {
   command = apply
 
   providers = {
-    azapi  = azapi.alternate
-    modtm  = modtm
+    azapi = azapi.alternate
+
     random = random
   }
 

@@ -15,8 +15,6 @@ mock_provider "azapi" {
   }
 }
 
-mock_provider "modtm" {}
-
 mock_provider "random" {}
 
 variables {
@@ -99,8 +97,8 @@ run "defaults" {
     error_message = "No role assignments must be created when `role_assignments` is empty."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -130,8 +128,8 @@ run "disabled_action_group_with_tags" {
     error_message = "Tags must be propagated to the action group."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -154,8 +152,8 @@ run "telemetry_enabled" {
     error_message = "Telemetry must be emitted when `enable_telemetry` is true."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -182,8 +180,8 @@ run "telemetry_disabled" {
     error_message = "No telemetry identifier must be generated when `enable_telemetry` is false."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
