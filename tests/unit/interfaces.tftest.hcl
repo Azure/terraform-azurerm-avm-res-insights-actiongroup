@@ -20,8 +20,6 @@ mock_provider "azapi" {
   }
 }
 
-mock_provider "modtm" {}
-
 mock_provider "random" {}
 
 variables {
@@ -68,8 +66,8 @@ run "lock" {
     error_message = "The lock notes must come from `lock.notes`."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -108,8 +106,8 @@ run "role_assignments" {
     error_message = "Role assignments must retry the transient `ScopeLocked` error raised while a lock is being removed."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -155,8 +153,8 @@ run "role_assignment_retry_is_merged_not_replaced" {
     error_message = "The `ScopeLocked` retry must apply only to role assignments, not to the action group itself."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }
@@ -212,8 +210,8 @@ run "azapi_control_interfaces" {
     error_message = "`timeouts` must be forwarded to the action group resource."
   }
   providers = {
-    azapi  = azapi
-    modtm  = modtm
+    azapi = azapi
+
     random = random
   }
 }

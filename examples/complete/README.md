@@ -26,7 +26,6 @@ terraform {
       source  = "Azure/azapi"
       version = "~> 2.12"
     }
-    modtm = { "source" : "registry.terraform.io/azure/modtm", "version" : "~\u003e 0.3" }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
@@ -64,7 +63,7 @@ module "action_group" {
   source = "../../"
   providers = {
     azapi = azapi.alternate
-    modtm = modtm
+
   }
 
   location   = "Global"
@@ -161,8 +160,6 @@ The following requirements are needed by this module:
 - <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
-
-- <a name="requirement_modtm"></a> [modtm](#requirement\_modtm) (~> 0.3)
 
 - <a name="requirement_random"></a> [random](#requirement\_random) (~> 3.5)
 

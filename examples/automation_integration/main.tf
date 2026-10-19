@@ -6,7 +6,6 @@ terraform {
       source  = "Azure/azapi"
       version = "~> 2.12"
     }
-    modtm = { "source" : "registry.terraform.io/azure/modtm", "version" : "~\u003e 0.3" }
     random = {
       source  = "hashicorp/random"
       version = "~> 3.5"
@@ -81,8 +80,10 @@ resource "azapi_resource" "logic_app" {
 }
 
 module "action_group" {
-  source    = "../../"
-  providers = { modtm = modtm }
+  source = "../../"
+  providers = {
+    azapi = azapi
+  }
 
   location   = "Global"
   name       = "ag-avm-automation-${random_string.suffix.result}"
