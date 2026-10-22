@@ -49,9 +49,6 @@ resource "azapi_resource" "this" {
 module "avm_interfaces" {
   source  = "Azure/avm-utl-interfaces/azure"
   version = "0.9.0"
-  providers = {
-    azapi = azapi
-  }
 
   location                         = var.location
   enable_telemetry                 = var.enable_telemetry

@@ -103,9 +103,6 @@ resource "azapi_resource" "logic_app" {
 
 module "action_group" {
   source = "../../"
-  providers = {
-    azapi = azapi
-  }
 
   location   = "Global"
   name       = "ag-avm-automation-${random_string.suffix.result}"
