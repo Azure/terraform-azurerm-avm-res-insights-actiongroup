@@ -48,9 +48,6 @@ resource "azapi_resource" "resource_group" {
 # Azure Monitor action groups are global resources, so `location` is `Global`.
 module "action_group" {
   source = "../../"
-  providers = {
-    azapi = azapi
-  }
 
   location   = "Global"
   name       = "ag-avm-default-${random_string.suffix.result}"

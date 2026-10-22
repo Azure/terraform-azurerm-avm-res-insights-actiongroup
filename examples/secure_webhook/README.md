@@ -59,9 +59,6 @@ resource "azapi_resource" "resource_group" {
 
 module "action_group" {
   source = "../../"
-  providers = {
-    azapi = azapi
-  }
 
   location         = "Global"
   name             = "ag-avm-secure-${random_string.suffix.result}"
