@@ -87,8 +87,9 @@ the AzAPI provider's write-only `sensitive_body` argument rather than through `b
 - `automation_runbook_receivers[*].service_uri`
 
 A write-only argument is transmitted to Azure but never written to Terraform state. In place of the
-endpoint, the module stores a SHA-256 hash of it in `sensitive_body_version`, which is what lets
-Terraform detect that an endpoint changed without persisting the endpoint itself.
+endpoints, the module stores a SHA-256 version derived from their hashes, the receiver configuration
+and tags in `sensitive_body_version`. This detects endpoint changes without persisting the endpoints
+and resends all endpoints when the action group configuration changes, including tag-only updates.
 
 Two consequences follow. First, supplying any of these four inputs requires **Terraform 1.11 or
 later**, because earlier versions cannot accept a write-only argument; the module collapses

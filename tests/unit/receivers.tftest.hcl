@@ -264,6 +264,15 @@ run "credential_bearing_endpoints_are_write_only" {
   command = apply
 
   variables {
+    automation_runbook_receivers = {
+      remediation = {
+        automation_account_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit/providers/Microsoft.Automation/automationAccounts/aa-avm-unit"
+        name                  = "remediation"
+        runbook_name          = "Restart-Service"
+        webhook_resource_id   = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit/providers/Microsoft.Automation/automationAccounts/aa-avm-unit/webhooks/wh-avm-unit"
+        service_uri           = "https://example.com/automation"
+      }
+    }
     azure_function_receivers = {
       dispatcher = {
         name                     = "dispatcher"
@@ -292,6 +301,10 @@ run "credential_bearing_endpoints_are_write_only" {
     error_message = "The Azure Function HTTP trigger URL must be absent from the state-persisted body."
   }
   assert {
+    condition     = !can(azapi_resource.this.body.properties.automationRunbookReceivers[0].serviceUri)
+    error_message = "The Automation runbook service URI must be absent from the state-persisted body."
+  }
+  assert {
     condition     = !can(azapi_resource.this.body.properties.logicAppReceivers[0].callbackUrl)
     error_message = "The Logic App callback URL must be absent from the state-persisted body."
   }
@@ -300,8 +313,35 @@ run "credential_bearing_endpoints_are_write_only" {
     error_message = "The webhook service URI must be absent from the state-persisted body."
   }
   assert {
-    condition     = azapi_resource.this.sensitive_body_version["properties.webhookReceivers[0].serviceUri"] == sha256("https://example.com/ops")
-    error_message = "The webhook service URI must be tracked in `sensitive_body_version` by content hash."
+    condition     = can(azapi_resource.this.sensitive_body_version["properties.automationRunbookReceivers[0].serviceUri"])
+    error_message = "The Automation runbook service URI must be tracked in `sensitive_body_version`."
+  }
+  assert {
+    condition     = can(azapi_resource.this.sensitive_body_version["properties.azureFunctionReceivers[0].httpTriggerUrl"])
+    error_message = "The Azure Function HTTP trigger URL must be tracked in `sensitive_body_version`."
+  }
+  assert {
+    condition     = can(azapi_resource.this.sensitive_body_version["properties.logicAppReceivers[0].callbackUrl"])
+    error_message = "The Logic App callback URL must be tracked in `sensitive_body_version`."
+  }
+  assert {
+    condition     = can(azapi_resource.this.sensitive_body_version["properties.webhookReceivers[0].serviceUri"])
+    error_message = "The webhook service URI must be tracked in `sensitive_body_version`."
+  }
+  assert {
+    condition = alltrue([
+      for version in values(azapi_resource.this.sensitive_body_version) :
+      version == sha256(jsonencode(merge(azapi_resource.this.body.properties, {
+        tags = var.tags
+        sensitiveReceiverHashes = {
+          "properties.automationRunbookReceivers[0].serviceUri" = sha256("https://example.com/automation")
+          "properties.azureFunctionReceivers[0].httpTriggerUrl" = sha256("https://example.com/api/dispatch")
+          "properties.logicAppReceivers[0].callbackUrl"         = sha256("https://example.com/logic-callback")
+          "properties.webhookReceivers[0].serviceUri"           = sha256("https://example.com/ops")
+        }
+      })))
+    ])
+    error_message = "Every sensitive receiver version must cover the action group body, tags, and all endpoint hashes so any update resends every endpoint."
   }
   assert {
     condition     = !issensitive(output.resource_id)
