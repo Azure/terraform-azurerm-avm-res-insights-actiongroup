@@ -94,6 +94,21 @@ run "update_receivers_and_disable" {
   }
 }
 
+run "verify_webhook_before_tag_update" {
+  module {
+    source = "./tests/integration/verify_webhook_receiver"
+  }
+
+  variables {
+    action_group_id = run.update_receivers_and_disable.resource_id
+  }
+
+  assert {
+    condition     = output.receiver_has_service_uri
+    error_message = "The remote action group must contain the webhook receiver endpoint before the tag-only update."
+  }
+}
+
 run "tag_only_update" {
   variables {
     enabled    = false
@@ -126,7 +141,7 @@ run "tag_only_update" {
     webhook_receivers = {
       ops = {
         name                    = "ops"
-        service_uri             = "https://ci-user:nonsecret-placeholder@webhook.invalid/azure-monitor?code=not-a-secret"
+        service_uri             = "https://example.com/azure-monitor/ops"
         use_common_alert_schema = true
       }
     }
