@@ -24,7 +24,7 @@ resource "azapi_resource" "this" {
   response_export_values = []
   retry                  = var.retry
   sensitive_body         = local.has_sensitive_receivers ? local.sensitive_receiver_body : null
-  sensitive_body_version = local.has_sensitive_receivers ? local.sensitive_receiver_versions : null
+  sensitive_body_version = null
   tags                   = var.tags
 
   dynamic "timeouts" {

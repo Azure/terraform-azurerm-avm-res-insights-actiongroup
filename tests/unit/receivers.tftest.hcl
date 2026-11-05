@@ -264,6 +264,15 @@ run "credential_bearing_endpoints_are_write_only" {
   command = apply
 
   variables {
+    automation_runbook_receivers = {
+      remediation = {
+        automation_account_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit/providers/Microsoft.Automation/automationAccounts/aa-avm-unit"
+        name                  = "remediation"
+        runbook_name          = "Restart-Service"
+        webhook_resource_id   = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit/providers/Microsoft.Automation/automationAccounts/aa-avm-unit/webhooks/wh-avm-unit"
+        service_uri           = "https://example.com/automation"
+      }
+    }
     azure_function_receivers = {
       dispatcher = {
         name                     = "dispatcher"
@@ -292,6 +301,10 @@ run "credential_bearing_endpoints_are_write_only" {
     error_message = "The Azure Function HTTP trigger URL must be absent from the state-persisted body."
   }
   assert {
+    condition     = !can(azapi_resource.this.body.properties.automationRunbookReceivers[0].serviceUri)
+    error_message = "The Automation runbook service URI must be absent from the state-persisted body."
+  }
+  assert {
     condition     = !can(azapi_resource.this.body.properties.logicAppReceivers[0].callbackUrl)
     error_message = "The Logic App callback URL must be absent from the state-persisted body."
   }
@@ -300,12 +313,51 @@ run "credential_bearing_endpoints_are_write_only" {
     error_message = "The webhook service URI must be absent from the state-persisted body."
   }
   assert {
-    condition     = azapi_resource.this.sensitive_body_version["properties.webhookReceivers[0].serviceUri"] == sha256("https://example.com/ops")
-    error_message = "The webhook service URI must be tracked in `sensitive_body_version` by content hash."
+    # Mocked tests can prove the module sets `sensitive_body_version` to null, but they cannot
+    # prove AzAPI runtime merge/hash behavior. That verification stays in live CI repair runs.
+    condition     = azapi_resource.this.sensitive_body_version == null
+    error_message = "`sensitive_body_version` must be null so AzAPI uses provider-private hashing for the full sensitive body."
   }
   assert {
     condition     = !issensitive(output.resource_id)
     error_message = "The resource ID output must not carry sensitive receiver data."
+  }
+  providers = {
+    azapi = azapi
+
+    random = random
+  }
+}
+
+run "automation_runbook_receiver_allows_null_service_uri" {
+  command = apply
+
+  variables {
+    automation_runbook_receivers = {
+      remediation = {
+        automation_account_id = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit/providers/Microsoft.Automation/automationAccounts/aa-avm-unit"
+        name                  = "remediation"
+        runbook_name          = "Restart-Service"
+        webhook_resource_id   = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/rg-avm-unit/providers/Microsoft.Automation/automationAccounts/aa-avm-unit/webhooks/wh-avm-unit"
+      }
+    }
+  }
+
+  assert {
+    condition     = length(azapi_resource.this.body.properties.automationRunbookReceivers) == 1
+    error_message = "Automation runbook receivers must be sent even when `service_uri` is omitted."
+  }
+  assert {
+    condition     = azapi_resource.this.body.properties.automationRunbookReceivers[0].name == "remediation"
+    error_message = "The runbook receiver name must be preserved when `service_uri` is omitted."
+  }
+  assert {
+    condition     = !can(azapi_resource.this.body.properties.automationRunbookReceivers[0].serviceUri)
+    error_message = "The runbook service URI must remain absent from the state-persisted body when omitted."
+  }
+  assert {
+    condition     = azapi_resource.this.sensitive_body_version == null
+    error_message = "`sensitive_body_version` must remain null when runbook receivers use optional null `service_uri`."
   }
   providers = {
     azapi = azapi

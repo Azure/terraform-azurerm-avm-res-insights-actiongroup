@@ -140,15 +140,8 @@ locals {
       webhookReceivers           = local.webhook_receivers_sensitive
     }
   }
-  # Hashing the endpoint, rather than versioning it by hand, makes a changed secret detectable
-  # without the secret itself being written to state.
-  sensitive_receiver_versions = merge(
-    { for i, v in local.automation_runbook_receivers_sensitive : "properties.automationRunbookReceivers[${i}].serviceUri" => sha256(v.serviceUri == null ? "" : v.serviceUri) },
-    { for i, v in local.azure_function_receivers_sensitive : "properties.azureFunctionReceivers[${i}].httpTriggerUrl" => sha256(v.httpTriggerUrl) },
-    { for i, v in local.logic_app_receivers_sensitive : "properties.logicAppReceivers[${i}].callbackUrl" => sha256(v.callbackUrl) },
-    { for i, v in local.webhook_receivers_sensitive : "properties.webhookReceivers[${i}].serviceUri" => sha256(v.serviceUri) },
-  )
-  # Collapsing to null when no credential-bearing receiver is configured keeps the module usable
-  # on Terraform versions earlier than 1.11, which cannot accept a write-only argument.
-  has_sensitive_receivers = length(local.sensitive_receiver_versions) > 0
+  # `sensitive_body_version` is explicitly null, so AzAPI uses its provider-private hash of the
+  # full sensitive body on every update. Keep this toggle based on receiver presence, not secret
+  # values, so optional null runbook service URIs still send a full receiver array shape.
+  has_sensitive_receivers = length(local.automation_runbook_receivers_sensitive) > 0 || length(local.azure_function_receivers_sensitive) > 0 || length(local.logic_app_receivers_sensitive) > 0 || length(local.webhook_receivers_sensitive) > 0
 }
