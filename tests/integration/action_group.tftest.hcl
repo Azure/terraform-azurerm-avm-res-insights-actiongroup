@@ -166,6 +166,186 @@ run "verify_webhook_after_tag_update" {
     condition     = output.receiver_has_service_uri
     error_message = "The remote action group must retain the webhook receiver endpoint after a tag-only update."
   }
+  assert {
+    condition     = output.webhook_receiver_count == 1
+    error_message = "The remote action group must retain exactly one webhook receiver after a tag-only update."
+  }
+  assert {
+    condition     = output.ops_receiver_count == 1
+    error_message = "The remote action group must retain exactly one webhook receiver named 'ops' after a tag-only update."
+  }
+}
+
+run "clear_webhook_receivers_out_of_band" {
+  module {
+    source = "./tests/integration/clear_webhook_receivers"
+  }
+
+  variables {
+    action_group_id = run.tag_only_update.resource_id
+  }
+
+  assert {
+    condition     = output.webhook_receiver_count == 0
+    error_message = "The out-of-band drift fixture must clear webhook receivers before the repair attempts."
+  }
+}
+
+run "verify_webhook_after_out_of_band_clear" {
+  module {
+    source = "./tests/integration/verify_webhook_receiver"
+  }
+
+  variables {
+    action_group_id = run.tag_only_update.resource_id
+  }
+
+  assert {
+    condition     = output.webhook_receiver_count == 0
+    error_message = "The remote action group must report no webhook receivers after the out-of-band clear."
+  }
+  assert {
+    condition     = output.ops_receiver_count == 0
+    error_message = "The remote action group must report no 'ops' webhook receiver after the out-of-band clear."
+  }
+  assert {
+    condition     = !output.receiver_has_service_uri
+    error_message = "The remote action group must report no 'ops' webhook receiver endpoint after the out-of-band clear."
+  }
+}
+
+run "repair_attempt_one_with_unchanged_config" {
+  variables {
+    enabled    = false
+    name       = "ag-avm-int-${run.setup.suffix}"
+    parent_id  = run.setup.resource_group_id
+    short_name = "avmint2"
+    email_receivers = {
+      on_call = {
+        name                    = "on-call"
+        email_address           = "avm-integration-test@contoso.com"
+        use_common_alert_schema = true
+      }
+      owner = {
+        name          = "owner"
+        email_address = "avm-integration-owner@contoso.com"
+      }
+    }
+    sms_receivers = {
+      on_call = {
+        name         = "on-call-sms"
+        country_code = "44"
+        phone_number = "1234567890"
+      }
+    }
+    tags = {
+      environment = "avm-integration-test"
+      updated     = "true"
+      regression  = "tag-only"
+    }
+    webhook_receivers = {
+      ops = {
+        name                    = "ops"
+        service_uri             = "https://example.com/azure-monitor/ops"
+        use_common_alert_schema = true
+      }
+    }
+  }
+
+  assert {
+    condition     = output.resource_id == run.tag_only_update.resource_id
+    error_message = "The first unchanged-config repair attempt must update the existing action group in place."
+  }
+}
+
+run "verify_webhook_after_repair_attempt_one" {
+  module {
+    source = "./tests/integration/verify_webhook_receiver"
+  }
+
+  variables {
+    action_group_id = run.repair_attempt_one_with_unchanged_config.resource_id
+  }
+
+  assert {
+    condition     = output.receiver_has_service_uri
+    error_message = "The first unchanged-config repair attempt must restore the named webhook receiver endpoint."
+  }
+  assert {
+    condition     = output.webhook_receiver_count == 1
+    error_message = "The first unchanged-config repair attempt must restore exactly one webhook receiver."
+  }
+  assert {
+    condition     = output.ops_receiver_count == 1
+    error_message = "The first unchanged-config repair attempt must restore exactly one webhook receiver named 'ops'."
+  }
+}
+
+run "repair_attempt_two_with_unchanged_config" {
+  variables {
+    enabled    = false
+    name       = "ag-avm-int-${run.setup.suffix}"
+    parent_id  = run.setup.resource_group_id
+    short_name = "avmint2"
+    email_receivers = {
+      on_call = {
+        name                    = "on-call"
+        email_address           = "avm-integration-test@contoso.com"
+        use_common_alert_schema = true
+      }
+      owner = {
+        name          = "owner"
+        email_address = "avm-integration-owner@contoso.com"
+      }
+    }
+    sms_receivers = {
+      on_call = {
+        name         = "on-call-sms"
+        country_code = "44"
+        phone_number = "1234567890"
+      }
+    }
+    tags = {
+      environment = "avm-integration-test"
+      updated     = "true"
+      regression  = "tag-only"
+    }
+    webhook_receivers = {
+      ops = {
+        name                    = "ops"
+        service_uri             = "https://example.com/azure-monitor/ops"
+        use_common_alert_schema = true
+      }
+    }
+  }
+
+  assert {
+    condition     = output.resource_id == run.tag_only_update.resource_id
+    error_message = "The second unchanged-config repair attempt must continue updating the existing action group in place."
+  }
+}
+
+run "verify_webhook_after_repair_attempt_two" {
+  module {
+    source = "./tests/integration/verify_webhook_receiver"
+  }
+
+  variables {
+    action_group_id = run.repair_attempt_two_with_unchanged_config.resource_id
+  }
+
+  assert {
+    condition     = output.receiver_has_service_uri
+    error_message = "The second unchanged-config repair attempt must restore the named webhook receiver endpoint."
+  }
+  assert {
+    condition     = output.webhook_receiver_count == 1
+    error_message = "The second unchanged-config repair attempt must restore exactly one webhook receiver."
+  }
+  assert {
+    condition     = output.ops_receiver_count == 1
+    error_message = "The second unchanged-config repair attempt must restore exactly one webhook receiver named 'ops'."
+  }
 }
 
 run "remove_receivers_and_reenable" {
