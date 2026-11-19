@@ -60,12 +60,12 @@ resource "azapi_resource" "resource_group" {
 module "action_group" {
   source = "../../"
 
-  location          = var.location
-  name              = "ag-avm-secure-${random_string.suffix.result}"
-  parent_id         = azapi_resource.resource_group.id
-  short_name        = "avmsecure"
-  enable_telemetry  = var.enable_telemetry
-  resource_location = "Global"
+  location                = var.location
+  name                    = "ag-avm-secure-${random_string.suffix.result}"
+  parent_id               = azapi_resource.resource_group.id
+  short_name              = "avmsecure"
+  enable_telemetry        = var.enable_telemetry
+  global_location_enabled = true
   tags = {
     environment = "avm-example"
     scenario    = "secure-webhook"

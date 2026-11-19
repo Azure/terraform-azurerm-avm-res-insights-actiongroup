@@ -101,7 +101,8 @@ module "action_group" {
       use_common_alert_schema = true
     }
   }
-  enable_telemetry = var.enable_telemetry
+  enable_telemetry        = var.enable_telemetry
+  global_location_enabled = true
   # The Logic App `callback_url` is a synthetic placeholder. A real deployment sources it from a
   # `listCallbackUrl` action, which returns a signed, credential-bearing URL.
   logic_app_receivers = {
@@ -112,7 +113,6 @@ module "action_group" {
       use_common_alert_schema = true
     }
   }
-  resource_location = "Global"
   tags = {
     environment = "avm-example"
     scenario    = "automation-integration"

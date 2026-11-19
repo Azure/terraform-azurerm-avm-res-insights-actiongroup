@@ -97,8 +97,9 @@ module "action_group" {
       email_address = "avm-example-owner@contoso.com"
     }
   }
-  enable_telemetry = var.enable_telemetry
-  enabled          = true
+  enable_telemetry        = var.enable_telemetry
+  enabled                 = true
+  global_location_enabled = true
   # Suppress drift on the action group's tags, which are frequently rewritten by Azure Policy.
   ignore_body_changes = {
     insights_action_groups = ["tags"]
@@ -107,7 +108,6 @@ module "action_group" {
     kind  = "CanNotDelete"
     notes = "Protected by the AVM complete example."
   }
-  resource_location = "Global"
   retry = {
     error_message_regex  = ["ResourceGroupNotFound"]
     interval_seconds     = 10

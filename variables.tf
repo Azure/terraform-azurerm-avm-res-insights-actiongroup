@@ -1,6 +1,6 @@
 variable "location" {
   type        = string
-  description = "Azure region for subscription telemetry. Also sets the action group's location when `resource_location` is omitted."
+  description = "Azure region for subscription telemetry and the action group when `global_location_enabled` is false."
   nullable    = false
 }
 
@@ -78,6 +78,13 @@ DESCRIPTION
   nullable    = false
 }
 
+variable "global_location_enabled" {
+  type        = bool
+  default     = false
+  description = "Whether to create the action group in Global instead of `location`. Required for Service Health alerts. Telemetry still uses the Azure region in `location`."
+  nullable    = false
+}
+
 variable "ignore_body_changes" {
   type = object({
     insights_action_groups         = optional(list(string), [])
@@ -127,12 +134,6 @@ DESCRIPTION
     condition     = var.lock != null ? contains(["CanNotDelete", "ReadOnly"], var.lock.kind) : true
     error_message = "Lock kind must be either `\"CanNotDelete\"` or `\"ReadOnly\"`."
   }
-}
-
-variable "resource_location" {
-  type        = string
-  default     = null
-  description = "Location of the action group. Use `Global` for a global action group and set `location` to an Azure region. Defaults to `location` when omitted."
 }
 
 variable "resource_types" {

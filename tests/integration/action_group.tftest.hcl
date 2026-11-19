@@ -1,6 +1,6 @@
 variables {
-  location          = "westeurope"
-  resource_location = "Global"
+  global_location_enabled = true
+  location                = "westeurope"
 }
 
 run "setup" {

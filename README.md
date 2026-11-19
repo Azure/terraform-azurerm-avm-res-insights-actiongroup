@@ -136,8 +136,9 @@ Not implemented, because the resource type does not support the underlying Azure
 
 ## Location
 
-For a global action group, set `resource_location` to `Global` and `location` to the Azure region
-for subscription telemetry. If `resource_location` is omitted, the action group still uses `location`.
+Set `global_location_enabled = true` for a global action group, as required by Service Health
+alerts, and set `location` to a real Azure region for subscription telemetry.
+The flag defaults to `false`, preserving the action group's use of `location`.
 
 ## `ignore_body_changes`
 
@@ -220,7 +221,7 @@ The following input variables are required:
 
 ### <a name="input_location"></a> [location](#input\_location)
 
-Description: Azure region for subscription telemetry. Also sets the action group's location when `resource_location` is omitted.
+Description: Azure region for subscription telemetry and the action group when `global_location_enabled` is false.
 
 Type: `string`
 
@@ -431,6 +432,14 @@ map(object({
 
 Default: `{}`
 
+### <a name="input_global_location_enabled"></a> [global\_location\_enabled](#input\_global\_location\_enabled)
+
+Description: Whether to create the action group in Global instead of `location`. Required for Service Health alerts. Telemetry still uses the Azure region in `location`.
+
+Type: `bool`
+
+Default: `false`
+
 ### <a name="input_ignore_body_changes"></a> [ignore\_body\_changes](#input\_ignore\_body\_changes)
 
 Description: Paths in each resource's `body` whose changes the AzAPI provider ignores. Prefer Terraform's
@@ -536,14 +545,6 @@ map(object({
 ```
 
 Default: `{}`
-
-### <a name="input_resource_location"></a> [resource\_location](#input\_resource\_location)
-
-Description: Location of the action group. Use `Global` for a global action group and set `location` to an Azure region. Defaults to `location` when omitted.
-
-Type: `string`
-
-Default: `null`
 
 ### <a name="input_resource_types"></a> [resource\_types](#input\_resource\_types)
 

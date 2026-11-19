@@ -47,6 +47,6 @@ module "action_group" {
       email_address = "avm-example-on-call@contoso.com"
     }
   }
-  enable_telemetry  = var.enable_telemetry
-  resource_location = "Global"
+  enable_telemetry        = var.enable_telemetry
+  global_location_enabled = true
 }

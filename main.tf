@@ -1,5 +1,5 @@
 resource "azapi_resource" "this" {
-  location  = var.resource_location == null ? var.location : var.resource_location
+  location  = var.global_location_enabled ? "Global" : var.location
   name      = var.name
   parent_id = var.parent_id
   type      = var.resource_types.insights_action_groups
