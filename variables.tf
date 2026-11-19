@@ -1,10 +1,6 @@
 variable "location" {
   type        = string
-  description = <<DESCRIPTION
-Azure region of the action group. Azure Monitor action groups are global resources, so
-`Global` is the expected value for virtually every deployment. Supply a regional value only
-where Azure Monitor offers a regional action group for data-residency reasons.
-DESCRIPTION
+  description = "Azure region for subscription telemetry and the action group when `global_location_enabled` is false."
   nullable    = false
 }
 
@@ -79,6 +75,13 @@ Indicates whether this action group is enabled. This value maps to
 `Microsoft.Insights/actionGroups.properties.enabled`. If an action group is not enabled then
 none of its receivers will receive communications.
 DESCRIPTION
+  nullable    = false
+}
+
+variable "global_location_enabled" {
+  type        = bool
+  default     = false
+  description = "Whether to create the action group in Global instead of `location`. Required for Service Health alerts. Telemetry still uses the Azure region in `location`."
   nullable    = false
 }
 

@@ -134,8 +134,9 @@ Not implemented, because the resource type does not support the underlying Azure
 
 ## Location
 
-Action groups are **global** resources. Set `location` to `Global` unless you specifically need a
-regional action group, which Azure supports only in a small number of regions.
+Set `global_location_enabled = true` for a global action group, as required by Service Health
+alerts, and set `location` to a real Azure region for subscription telemetry.
+The flag defaults to `false`, preserving the action group's use of `location`.
 
 ## `ignore_body_changes`
 

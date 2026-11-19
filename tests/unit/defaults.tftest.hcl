@@ -28,6 +28,7 @@ run "defaults" {
   command = apply
 
   variables {
+    location = "swedencentral"
     email_receivers = {
       on_call = {
         name          = "on-call"
@@ -53,8 +54,8 @@ run "defaults" {
     error_message = "The default resource type must be the latest stable action group API version."
   }
   assert {
-    condition     = azapi_resource.this.location == "Global"
-    error_message = "The action group must be created in the supplied location."
+    condition     = azapi_resource.this.location == "swedencentral"
+    error_message = "The action group must retain the supplied region when global location is not enabled."
   }
   assert {
     condition     = azapi_resource.this.body.properties.groupShortName == "avmunit"
@@ -107,7 +108,9 @@ run "disabled_action_group_with_tags" {
   command = apply
 
   variables {
-    enabled = false
+    enabled                 = false
+    global_location_enabled = true
+    location                = "westeurope"
     email_receivers = {
       on_call = {
         name          = "on-call"
@@ -122,6 +125,10 @@ run "disabled_action_group_with_tags" {
   assert {
     condition     = azapi_resource.this.body.properties.enabled == false
     error_message = "The action group must be disabled when `enabled` is false."
+  }
+  assert {
+    condition     = azapi_resource.this.location == "Global"
+    error_message = "A regional deployment location must not move a global action group."
   }
   assert {
     condition     = azapi_resource.this.tags["environment"] == "test"

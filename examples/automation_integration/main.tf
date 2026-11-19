@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.9, < 2.0"
+  required_version = ">= 1.11.4, < 2.0"
 
   required_providers {
     azapi = {
@@ -82,7 +82,7 @@ resource "azapi_resource" "logic_app" {
 module "action_group" {
   source = "../../"
 
-  location   = "Global"
+  location   = var.location
   name       = "ag-avm-automation-${random_string.suffix.result}"
   parent_id  = azapi_resource.resource_group.id
   short_name = "avmauto"
@@ -101,7 +101,8 @@ module "action_group" {
       use_common_alert_schema = true
     }
   }
-  enable_telemetry = var.enable_telemetry
+  enable_telemetry        = var.enable_telemetry
+  global_location_enabled = true
   # The Logic App `callback_url` is a synthetic placeholder. A real deployment sources it from a
   # `listCallbackUrl` action, which returns a signed, credential-bearing URL.
   logic_app_receivers = {
