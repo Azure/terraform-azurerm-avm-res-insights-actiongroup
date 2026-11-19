@@ -136,8 +136,9 @@ Not implemented, because the resource type does not support the underlying Azure
 
 ## Location
 
-Action groups are **global** resources. Set `location` to `Global` unless you specifically need a
-regional action group, which Azure supports only in a small number of regions.
+Set `global_location_enabled = true` for a global action group, as required by Service Health
+alerts, and set `location` to a real Azure region for subscription telemetry.
+The flag defaults to `false`, preserving the action group's use of `location`.
 
 ## `ignore_body_changes`
 
@@ -198,7 +199,7 @@ omit is removed on the next apply.
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.11.4, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
@@ -220,9 +221,7 @@ The following input variables are required:
 
 ### <a name="input_location"></a> [location](#input\_location)
 
-Description: Azure region of the action group. Azure Monitor action groups are global resources, so
-`Global` is the expected value for virtually every deployment. Supply a regional value only  
-where Azure Monitor offers a regional action group for data-residency reasons.
+Description: Azure region for subscription telemetry and the action group when `global_location_enabled` is false.
 
 Type: `string`
 
@@ -432,6 +431,14 @@ map(object({
 ```
 
 Default: `{}`
+
+### <a name="input_global_location_enabled"></a> [global\_location\_enabled](#input\_global\_location\_enabled)
+
+Description: Whether to create the action group in Global instead of `location`. Required for Service Health alerts. Telemetry still uses the Azure region in `location`.
+
+Type: `bool`
+
+Default: `false`
 
 ### <a name="input_ignore_body_changes"></a> [ignore\_body\_changes](#input\_ignore\_body\_changes)
 

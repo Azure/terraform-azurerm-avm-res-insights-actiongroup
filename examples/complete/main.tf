@@ -1,5 +1,5 @@
 terraform {
-  required_version = ">= 1.9, < 2.0"
+  required_version = ">= 1.11.4, < 2.0"
 
   required_providers {
     azapi = {
@@ -46,7 +46,7 @@ module "action_group" {
 
   }
 
-  location   = "Global"
+  location   = var.location
   name       = "ag-avm-complete-${random_string.suffix.result}"
   parent_id  = azapi_resource.resource_group.id
   short_name = "avmcomplete"
@@ -77,8 +77,9 @@ module "action_group" {
       email_address = "avm-example-owner@contoso.com"
     }
   }
-  enable_telemetry = var.enable_telemetry
-  enabled          = true
+  enable_telemetry        = var.enable_telemetry
+  enabled                 = true
+  global_location_enabled = true
   # Suppress drift on the action group's tags, which are frequently rewritten by Azure Policy.
   ignore_body_changes = {
     insights_action_groups = ["tags"]

@@ -23,7 +23,7 @@ Azure Monitor.
 
 ```hcl
 terraform {
-  required_version = ">= 1.9, < 2.0"
+  required_version = ">= 1.11.4, < 2.0"
 
   required_providers {
     azapi = {
@@ -60,11 +60,12 @@ resource "azapi_resource" "resource_group" {
 module "action_group" {
   source = "../../"
 
-  location         = "Global"
-  name             = "ag-avm-secure-${random_string.suffix.result}"
-  parent_id        = azapi_resource.resource_group.id
-  short_name       = "avmsecure"
-  enable_telemetry = var.enable_telemetry
+  location                = var.location
+  name                    = "ag-avm-secure-${random_string.suffix.result}"
+  parent_id               = azapi_resource.resource_group.id
+  short_name              = "avmsecure"
+  enable_telemetry        = var.enable_telemetry
+  global_location_enabled = true
   tags = {
     environment = "avm-example"
     scenario    = "secure-webhook"
@@ -94,7 +95,7 @@ module "action_group" {
 
 The following requirements are needed by this module:
 
-- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.9, < 2.0)
+- <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) (>= 1.11.4, < 2.0)
 
 - <a name="requirement_azapi"></a> [azapi](#requirement\_azapi) (~> 2.12)
 
