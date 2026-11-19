@@ -34,11 +34,10 @@ resource "azapi_resource" "resource_group" {
 }
 
 # This is the module call.
-# Azure Monitor action groups are global resources, so `location` is `Global`.
 module "action_group" {
   source = "../../"
 
-  location   = "Global"
+  location   = var.location
   name       = "ag-avm-default-${random_string.suffix.result}"
   parent_id  = azapi_resource.resource_group.id
   short_name = "avmdefault"
@@ -48,5 +47,6 @@ module "action_group" {
       email_address = "avm-example-on-call@contoso.com"
     }
   }
-  enable_telemetry = var.enable_telemetry
+  enable_telemetry  = var.enable_telemetry
+  resource_location = "Global"
 }

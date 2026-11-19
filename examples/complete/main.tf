@@ -46,7 +46,7 @@ module "action_group" {
 
   }
 
-  location   = "Global"
+  location   = var.location
   name       = "ag-avm-complete-${random_string.suffix.result}"
   parent_id  = azapi_resource.resource_group.id
   short_name = "avmcomplete"
@@ -87,6 +87,7 @@ module "action_group" {
     kind  = "CanNotDelete"
     notes = "Protected by the AVM complete example."
   }
+  resource_location = "Global"
   retry = {
     error_message_regex  = ["ResourceGroupNotFound"]
     interval_seconds     = 10

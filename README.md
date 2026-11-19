@@ -136,8 +136,8 @@ Not implemented, because the resource type does not support the underlying Azure
 
 ## Location
 
-Action groups are **global** resources. Set `location` to `Global` unless you specifically need a
-regional action group, which Azure supports only in a small number of regions.
+For a global action group, set `resource_location` to `Global` and `location` to the Azure region
+for subscription telemetry. If `resource_location` is omitted, the action group still uses `location`.
 
 ## `ignore_body_changes`
 
@@ -220,9 +220,7 @@ The following input variables are required:
 
 ### <a name="input_location"></a> [location](#input\_location)
 
-Description: Azure region of the action group. Azure Monitor action groups are global resources, so
-`Global` is the expected value for virtually every deployment. Supply a regional value only  
-where Azure Monitor offers a regional action group for data-residency reasons.
+Description: Azure region for subscription telemetry. Also sets the action group's location when `resource_location` is omitted.
 
 Type: `string`
 
@@ -538,6 +536,14 @@ map(object({
 ```
 
 Default: `{}`
+
+### <a name="input_resource_location"></a> [resource\_location](#input\_resource\_location)
+
+Description: Location of the action group. Use `Global` for a global action group and set `location` to an Azure region. Defaults to `location` when omitted.
+
+Type: `string`
+
+Default: `null`
 
 ### <a name="input_resource_types"></a> [resource\_types](#input\_resource\_types)
 

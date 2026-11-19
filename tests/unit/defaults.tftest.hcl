@@ -107,7 +107,9 @@ run "disabled_action_group_with_tags" {
   command = apply
 
   variables {
-    enabled = false
+    enabled           = false
+    location          = "westeurope"
+    resource_location = "Global"
     email_receivers = {
       on_call = {
         name          = "on-call"
@@ -122,6 +124,10 @@ run "disabled_action_group_with_tags" {
   assert {
     condition     = azapi_resource.this.body.properties.enabled == false
     error_message = "The action group must be disabled when `enabled` is false."
+  }
+  assert {
+    condition     = azapi_resource.this.location == "Global"
+    error_message = "A regional deployment location must not move a global action group."
   }
   assert {
     condition     = azapi_resource.this.tags["environment"] == "test"

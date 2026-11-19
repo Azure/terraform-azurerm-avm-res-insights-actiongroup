@@ -1,10 +1,6 @@
 variable "location" {
   type        = string
-  description = <<DESCRIPTION
-Azure region of the action group. Azure Monitor action groups are global resources, so
-`Global` is the expected value for virtually every deployment. Supply a regional value only
-where Azure Monitor offers a regional action group for data-residency reasons.
-DESCRIPTION
+  description = "Azure region for subscription telemetry. Also sets the action group's location when `resource_location` is omitted."
   nullable    = false
 }
 
@@ -131,6 +127,12 @@ DESCRIPTION
     condition     = var.lock != null ? contains(["CanNotDelete", "ReadOnly"], var.lock.kind) : true
     error_message = "Lock kind must be either `\"CanNotDelete\"` or `\"ReadOnly\"`."
   }
+}
+
+variable "resource_location" {
+  type        = string
+  default     = null
+  description = "Location of the action group. Use `Global` for a global action group and set `location` to an Azure region. Defaults to `location` when omitted."
 }
 
 variable "resource_types" {

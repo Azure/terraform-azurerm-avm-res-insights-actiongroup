@@ -104,7 +104,7 @@ resource "azapi_resource" "logic_app" {
 module "action_group" {
   source = "../../"
 
-  location   = "Global"
+  location   = var.location
   name       = "ag-avm-automation-${random_string.suffix.result}"
   parent_id  = azapi_resource.resource_group.id
   short_name = "avmauto"
@@ -134,6 +134,7 @@ module "action_group" {
       use_common_alert_schema = true
     }
   }
+  resource_location = "Global"
   tags = {
     environment = "avm-example"
     scenario    = "automation-integration"
